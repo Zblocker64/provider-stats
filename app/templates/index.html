@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Server Utilization Dashboard</title>
+  <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.8.0/ui-shell.min.js"></script>
+  <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.8.0/date-picker.min.js"></script>
+  <script type="module" src="https://1.www.s81c.com/common/carbon/web-components/version/v2.8.0/button.min.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/@carbon/charts/dist/umd/bundle.umd.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/@carbon/charts/styles.css" />
+  <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/plex/sans.css" />
+  <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/grid.css" />
+  <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/cssgrid.css" />
+  <link rel="stylesheet" href="https://1.www.s81c.com/common/carbon/web-components/tag/latest/themes.css" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <style>
+    body {
+      font-family: IBM Plex Sans,Helvetica Neue,Arial,sans-serif;
+    }
+  </style>
+</head>
+<body class="cds-theme-zone-g10">
+  <cds-header aria-label="Server Utilization Dashboard" class="cds-theme-zone-g100">
+    <cds-header-menu-button
+      button-label-active="Close menu"
+      button-label-inactive="Open menu"></cds-header-menu-button>
+    <cds-header-name href="/" prefix="Server Utilization">Dashboard</cds-header-name>
+  </cds-header>
+    <div class="cds--grid">
+      <div class="cds--row" style="margin-top: 5rem">
+        <div class="cds--col-lg-3">
+          <cds-date-picker>
+            <cds-date-picker-input
+              id="from_date"
+              kind="from"
+              label-text="From"
+              placeholder="mm/dd/yyyy"
+              value="{{ start_date.strftime('%m/%d/%Y') }}"
+              size="lg">
+            </cds-date-picker-input>
+            <cds-date-picker-input
+              id="to_date"
+              kind="to"
+              label-text="To"
+              placeholder="mm/dd/yyyy"
+              value="{{ end_date.strftime('%m/%d/%Y') }}"
+              size="lg">
+            </cds-date-picker-input>
+            </cds-date-picker>
+        </div>
+        <div class="cds--col" style="margin-top: 1.4rem;">
+          <cds-button id="search_button"> Search </cds-button>
+        </div>
+      </div>
+      <div class="cds--row">
+        <div class="cds--col-lg-7" style="margin-left: 2rem; margin-top: 2rem; margin-right: 2rem">
+          <div id="cpu-area-chart"></div>
+        </div>
+        <div class="cds--col-lg-7" style="margin-left: 2rem; margin-top: 2rem; margin-right: 2rem">
+          <div id="gpu-area-chart"></div>
+        </div>
+      </div>
+      <div class="cds--row">
+        <div class="cds--col-lg-7" style="margin-left: 2rem; margin-top: 5rem; margin-right: 2rem">
+          <div id="memory-area-chart"></div>
+        </div>
+        <div class="cds--col-lg-7" style="margin-left: 2rem; margin-top: 5rem; margin-right: 2rem">
+          <div id="storage-area-chart"></div>
+        </div>
+      </div>
+    </div>
+  {% block javascript %}
+  <script>
+    // grab chart holder DOM element
+    const cpuChartHolder = document.getElementById('cpu-area-chart')
+    const gpuChartHolder = document.getElementById('gpu-area-chart')
+    const memoryChartHolder = document.getElementById('memory-area-chart')
+    const storageChartHolder = document.getElementById('storage-area-chart')
+
+    const CpuAreaChartData = {{ chart_data.cpu_chart_data | tojson | safe }}
+    const GpuAreaChartData = {{ chart_data.gpu_chart_data | tojson | safe }}
+    const MemoryAreaChartData = {{ chart_data.memory_chart_data | tojson | safe }}
+    const StorageAreaChartData = {{ chart_data.storage_chart_data | tojson | safe }}
+
+    const CpuAreaChartOptions = {
+      "title": "CPU utilization",
+      "axes": {
+        "left": {
+          "title": "Quantity",
+          "scaleType": "linear",
+          "mapsTo": "value"
+        },
+        "bottom": {
+          "title": "Daily average",
+          "scaleType": "time",
+          "mapsTo": "date"
+        }
+      },
+      "height": "500px",
+      "theme": "white"
+    }
+
+    const GpuAreaChartOptions = {
+      "title": "GPU utilization",
+      "axes": {
+        "left": {
+          "title": "Quantity",
+          "scaleType": "linear",
+          "mapsTo": "value"
+        },
+        "bottom": {
+          "title": "Daily average",
+          "scaleType": "time",
+          "mapsTo": "date"
+        }
+      },
+      "height": "500px",
+      "theme": "white"
+    }
+
+
+    const MemoryAreaChartOptions = {
+      "title": "Memory utilization",
+      "axes": {
+        "left": {
+          "title": "Quantity",
+          "scaleType": "linear",
+          "mapsTo": "value"
+        },
+        "bottom": {
+          "title": "Daily average",
+          "scaleType": "time",
+          "mapsTo": "date"
+        }
+      },
+      "height": "500px",
+      "theme": "white"
+    }
+
+
+    const StorageAreaChartOptions = {
+      "title": "Storage utilization",
+      "axes": {
+        "left": {
+          "title": "Quantity",
+          "scaleType": "linear",
+          "mapsTo": "value"
+        },
+        "bottom": {
+          "title": "Daily average",
+          "scaleType": "time",
+          "mapsTo": "date"
+        }
+      },
+      "height": "500px",
+      "theme": "white"
+    }
+
+      // initialize the charts
+      new Charts.AreaChart(cpuChartHolder, {
+        data: CpuAreaChartData,
+        options: CpuAreaChartOptions,
+      })
+
+      new Charts.AreaChart(gpuChartHolder, {
+        data: GpuAreaChartData,
+        options: GpuAreaChartOptions,
+      })
+
+      new Charts.AreaChart(memoryChartHolder, {
+        data: MemoryAreaChartData,
+        options: MemoryAreaChartOptions,
+      })
+
+      new Charts.AreaChart(storageChartHolder, {
+        data: StorageAreaChartData,
+        options: StorageAreaChartOptions,
+      })
+  </script>
+  {% endblock %}
+  <script>
+
+  function convertDate(inputFormat) {
+    // Split the input format to get the month, day, and year
+    var parts = inputFormat.match(/(\d+)/g);
+
+    // Note: Months are 0-based in JavaScript Date (0 = January, 11 = December)
+    var date = new Date(parts[2], parts[0] - 1, parts[1]);
+
+    // Retrieve the individual components of the date
+    var year = date.getFullYear();
+    var month = (date.getMonth() + 1).toString().padStart(2, '0'); // padStart ensures 2 digits
+    var day = date.getDate().toString().padStart(2, '0');
+
+    // Return the date in yyyy-mm-dd format
+    return `${year}-${month}-${day}`;
+  }
+
+    // Get the button and add a click event listener to it
+    var myButton = document.getElementById('search_button');
+    myButton.addEventListener('click', function() {
+      console.log("Wowww");
+      // Navigate to the fieldValue as the URL
+      var from_date = document.getElementById('from_date').value;
+      var to_date = document.getElementById('to_date').value;
+
+      window.location = "/search?from=" + convertDate(from_date) + "&to=" + convertDate(to_date)
+    });
+  </script>
+</body>
+</html>
