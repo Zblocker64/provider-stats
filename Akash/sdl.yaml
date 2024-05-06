@@ -1,0 +1,118 @@
+---
+version: "2.0"
+services:
+  couchdb:
+    image: couchdb:3.1.1
+    expose:
+      - port: 5984
+        as: 5984
+        to:
+          - service: flaskapp
+          - service: grpcpoller
+      - port: 5984
+        as: 80
+        to:
+          - global: true
+          - service: flaskapp
+          - service: grpcpoller
+    env:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=password
+    params:
+      storage:
+        couchdbdata:
+          mount: /opt/couchdb/data
+          readOnly: false
+  flaskapp:
+    image: zblocker64/akash_provider_stats:1.0
+    depends_on:
+    - couchdb
+    expose:
+      - port: 8000
+        as: 80
+        to:
+          - global: true
+        accept: 
+         - "stats.akashprovid.com"
+    env:
+      - COUCHDB_URL=http://admin:password@couchdb:5984
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=password
+      - COUCHDB_DB_NAME=server_utilization_log
+      - COUCHDB_DESIGN_DOC=utilization
+      - COUCHDB_CPU_VIEW=cpu_allocated
+      - COUCHDB_GPU_VIEW=gpu_allocated
+      - COUCHDB_MEMORY_VIEW=memory_allocated
+      - COUCHDB_STORAGE_VIEW=storage_allocated
+  grpcpoller:
+    image: zblocker64/akash_provider_stats_wa:1.0
+    depends_on:
+    - couchdb
+    expose:
+      - port: 80
+        as: 80
+        to:
+          - global: true
+    env:
+      - REQUEST_INTERVAL=300
+      - COUCHDB_URL=http://admin:password@couchdb:5984
+      - DB_NAME=server_utilization_log
+    commands:
+      - ./grpc_polling.sh
+
+profiles:
+  compute:
+    couchdb:
+      resources:
+        cpu:
+          units: 2
+        memory:
+          size: 4Gi
+        storage:
+          - size: 10Gi
+          - name: couchdbdata
+            size: 10Gi
+            attributes:
+              persistent: true
+              class: beta3
+    flaskapp:
+      resources:
+        cpu:
+          units: 2
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+    grpcpoller:
+      resources:
+        cpu:
+          units: 2
+        memory:
+          size: 2Gi
+        storage:
+          - size: 10Gi
+  placement:
+    dcloud:
+      pricing:
+        couchdb:
+          denom: uakt
+          amount: 1000
+        flaskapp:
+          denom: uakt
+          amount: 1000
+        grpcpoller:
+          denom: uakt
+          amount: 1000
+deployment:
+  couchdb:
+    dcloud:
+      profile: couchdb
+      count: 1
+  flaskapp:
+    dcloud:
+      profile: flaskapp
+      count: 1
+  grpcpoller:
+    dcloud:
+      profile: grpcpoller
+      count: 1
