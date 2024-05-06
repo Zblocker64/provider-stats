@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  couchdb:
+    image: couchdb:3.1.1
+    volumes:
+      - couchdb_data:/opt/couchdb/data
+    environment:
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+    ports:
+      - "5984:5984"
+
+  flask_app:
+    build: .
+    volumes:
+      - ./app:/app
+    environment:
+      COUCHDB_URL: "http://admin:password@couchdb:5984"
+      COUCHDB_USER: admin
+      COUCHDB_PASSWORD: password
+      COUCHDB_DB_NAME: server_utilization_log
+      COUCHDB_DESIGN_DOC: utilization
+      COUCHDB_CPU_VIEW: cpu_allocated
+      COUCHDB_GPU_VIEW: gpu_allocated
+      COUCHDB_MEMORY_VIEW: memory_allocated
+      COUCHDB_STORAGE_VIEW: storage_allocated
+    ports:
+      - "80:8000"
+    depends_on:
+      - couchdb
+
+  grpc_poller:
+    build:
+      context: .
+      dockerfile: Dockerfile.grpc_poller
+    environment:
+      - REQUEST_INTERVAL=300
+      - COUCHDB_URL=http://admin:password@couchdb:5984
+      - DB_NAME=server_utilization_log
+    volumes:
+      - ./grpc_polling.sh:/grpc_polling.sh
+    depends_on:
+      - couchdb
+    command: /grpc_polling.sh
+
+volumes:
+  couchdb_data:

@@ -1,0 +1,11 @@
+{
+  "_id": "_design/memory",
+  "_rev": "9-3be529587bc52dbbe879fa2fc42367f0",
+  "views": {
+    "allocated": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n    var date = new Date(doc.timestamp);\n    var year = date.getUTCFullYear();\n    var month = date.getUTCMonth() + 1; // because January is 0!\n    var day = date.getUTCDate();\n      \n    // Emit the composite key and the value\n    doc.cluster.inventory.cluster.nodes.forEach(function(node){\n      emit([node.name, year, month, day], parseInt(node.resources.memory.quantity.allocated.string, 10))});    \n}"
+    }
+  },
+  "language": "javascript"
+}
