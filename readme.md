@@ -26,6 +26,7 @@ You'll need an Akash wallet with at least 0.5 AKT. You can use any deploy tool t
 - `COUCHDB_GPU_VIEW` - The database index for GPU data
 - `COUCHDB_MEMORY_VIEW` - The database index for Memory data
 - `COUCHDB_STORAGE_VIEW` - The database index for Storage data
+- `PROVIDER_URL` - The provider URL the service will pull from
 
 Be aware that when changing the `COUCHDB_USER` and `COUCHDB_PASSWORD` values, it's necessary to change in both containers environment variables
 
