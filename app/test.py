@@ -32,7 +32,7 @@ start_date = datetime(2024, 4, 1)
 end_date = datetime(2024, 4, 30)
 
 # Define your node names
-nodes = ["node1", "node2", "node3", "node4"]
+nodes = [os.getenv("NODES")]
 
 # Generate the data
 random_data = generate_random_data(start_date, end_date, nodes)
