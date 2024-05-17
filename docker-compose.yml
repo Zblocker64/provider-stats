@@ -25,6 +25,7 @@ services:
       COUCHDB_GPU_VIEW: gpu_allocated
       COUCHDB_MEMORY_VIEW: memory_allocated
       COUCHDB_STORAGE_VIEW: storage_allocated
+      NODES: "node1,node2,node3,node4"
     ports:
       - "80:8000"
     depends_on:
@@ -38,6 +39,7 @@ services:
       - REQUEST_INTERVAL=300
       - COUCHDB_URL=http://admin:password@couchdb:5984
       - DB_NAME=server_utilization_log
+      - PROVIDER_URL=provider.akashprovid.com
     volumes:
       - ./grpc_polling.sh:/grpc_polling.sh
     depends_on:
