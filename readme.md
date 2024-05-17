@@ -52,3 +52,7 @@ Be aware that when changing the `COUCHDB_USER` and `COUCHDB_PASSWORD` values, it
 ### Persistent Data
 
 The composition is configured with named volumes so your data will be persistent across container restarts.
+
+### Troubleshooting
+
+While there should be no issue deploying, sometimes the Database doesnt intizaliaze correctly. If you dont see any data on your web dashboard, log into the database using the DB URL. Login using your username and password you set. Go to the set up tab. Select single node and re enter your username and password. This will fix the issue and you should see data within 15 minutes.
