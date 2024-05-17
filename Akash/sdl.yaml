@@ -32,8 +32,9 @@ services:
         as: 80
         to:
           - global: true
-        accept: 
-         - "stats.akashprovid.com"
+# uncomment below to have a custom URL for your web page
+#        accept: 
+#         - "stats.yourdomain.com"
     env:
       - COUCHDB_URL=http://admin:password@couchdb:5984
       - COUCHDB_USER=admin
@@ -58,6 +59,7 @@ services:
       - REQUEST_INTERVAL=300
       - COUCHDB_URL=http://admin:password@couchdb:5984
       - DB_NAME=server_utilization_log
+# Change this URL to the address of the provider you want to track
       - PROVIDER_URL=provider.akashprovid.com
     commands:
       - ./grpc_polling.sh
