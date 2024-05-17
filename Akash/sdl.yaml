@@ -24,7 +24,7 @@ services:
           mount: /opt/couchdb/data
           readOnly: false
   flaskapp:
-    image: zblocker64/akash_provider_stats:1.0
+    image: zblocker64/akash_provider_stats:1.1
     depends_on:
     - couchdb
     expose:
@@ -46,7 +46,7 @@ services:
       - COUCHDB_STORAGE_VIEW=storage_allocated
       - NODES="node1,node2,node3,node4"
   grpcpoller:
-    image: zblocker64/akash_provider_stats_wa:1.0
+    image: zblocker64/akash_provider_stats_wa:1.1
     depends_on:
     - couchdb
     expose:
