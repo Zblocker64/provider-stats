@@ -38,7 +38,7 @@ Be aware that when changing the `COUCHDB_USER` and `COUCHDB_PASSWORD` values, it
 
 ### Accessing the Applications
 
-* CouchDB: To access CouchDB UI, navigate to URL that Cloudmos gives you in your web browser. Login with the COUCHDB_USER and COUCHDB_PASSWORD configured in your environment variables.
+* CouchDB: To access CouchDB UI, navigate to URL that Cloudmos gives you in your web browser. Login with the COUCHDB_USER and COUCHDB_PASSWORD configured in your environment variables. You will need to add `/_utils/` to the end of your URl
 
     <img width="812" alt="Screenshot 2024-05-17 at 10 48 07 AM" src="https://github.com/Zblocker64/provider-stats/assets/105066639/fb215d9e-08bf-4db1-ab98-fddd1108bcad">
 
