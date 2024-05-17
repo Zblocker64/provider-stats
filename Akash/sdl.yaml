@@ -82,17 +82,17 @@ profiles:
         cpu:
           units: 2
         memory:
-          size: 2Gi
+          size: 1Gi
         storage:
-          - size: 10Gi
+          - size: 1Gi
     grpcpoller:
       resources:
         cpu:
-          units: 2
+          units: .5
         memory:
-          size: 2Gi
+          size: .5Gi
         storage:
-          - size: 10Gi
+          - size: 1Gi
   placement:
     dcloud:
       pricing:
