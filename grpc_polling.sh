@@ -14,7 +14,9 @@ while true; do
   # The variables are defined in the environment
 
   # Make gRPC request to retrieve the server status
-  response=$(grpcurl -insecure provider.akashprovid.com:8444 akash.provider.v1.ProviderRPC.GetStatus)
+
+response=$(grpcurl -insecure ${PROVIDER_URL}:8444 akash.provider.v1.ProviderRPC.GetStatus)
+
 
   # Save the response in a CouchDB document by using the CouchDB HTTP API.
   curl -X POST "$COUCHDB_URL/$DB_NAME" \
