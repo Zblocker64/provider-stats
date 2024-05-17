@@ -57,6 +57,7 @@ services:
       - REQUEST_INTERVAL=300
       - COUCHDB_URL=http://admin:password@couchdb:5984
       - DB_NAME=server_utilization_log
+      - PROVIDER_URL=provider.akashprovid.com
     commands:
       - ./grpc_polling.sh
 
