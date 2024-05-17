@@ -7,7 +7,7 @@ This program has three pods with three diffrent services:
 
 ## Getting Started
 
-These instructions will cover usage information the Akash Deploy setup of this project.
+These instructions will cover usage information the Cloudmos Deploy of this project.
 
 
 ### Deploying
